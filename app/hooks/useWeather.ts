@@ -8,6 +8,17 @@ interface WeatherData {
   windSpeed: number;
   windDirection: number;
   humidity: number;
+  daily: DailyData;
+}
+
+interface DailyData {
+  weatherCode: number[];
+  temperature2mMax: number[];
+  temperature2mMin: number[];
+  sunrise: Array<Date>;
+  sunset: Array<Date>;
+  windSpeed10mMax: number[];
+  windDirection10mDominant: number[];
 }
 
 const forecastUrl = 'https://api.open-meteo.com/v1/forecast';
@@ -16,10 +27,12 @@ const params = {
   latitude: 0,
   longitude: 0,
   "current": ["temperature_2m", "relative_humidity_2m", "is_day", "weather_code", "wind_speed_10m", "wind_direction_10m"],
-	"hourly": ["temperature_2m", "weather_code", "cloud_cover", "wind_speed_10m", "uv_index"],
-	"wind_speed_unit": "ms",
-	"timezone": "Europe/Berlin",
-	"models": "best_match"
+  "hourly": ["temperature_2m", "weather_code", "cloud_cover", "wind_speed_10m", "uv_index"],
+  "daily": ["weather_code", "temperature_2m_max", "temperature_2m_min", "sunrise", "sunset",
+    "precipitation_hours", "wind_speed_10m_max", "wind_direction_10m_dominant"],
+  "wind_speed_unit": "ms",
+  "timezone": "Europe/Berlin",
+  "models": "best_match"
 }
 
 const useWeather = (city: string) => {
@@ -47,15 +60,25 @@ const useWeather = (city: string) => {
         const weatherResponse = await fetchWeatherApi(forecastUrl, params);
         const weatherData = weatherResponse[0];
         const currentWeather = weatherData.current()!;
+        const dailyWeather = weatherData.daily()!;
 
-        setWeather({ 
+        setWeather({
           temperature: Math.round(currentWeather.variables(0)!.value()!),
           isDay: currentWeather.variables(2)!.value()!,
           weatherCode: currentWeather.variables(3)!.value()!,
           windSpeed: Math.round(currentWeather.variables(4)!.value()!),
           windDirection: Math.round(currentWeather.variables(5)!.value()!),
-          humidity: currentWeather.variables(1)!.value()!
-         });
+          humidity: currentWeather.variables(1)!.value()!,
+          daily: {
+            weatherCode: Array.from(dailyWeather.variables(0)!.valuesArray()!),
+            temperature2mMax: Array.from(dailyWeather.variables(1)!.valuesArray()!),
+            temperature2mMin: Array.from(dailyWeather.variables(2)!.valuesArray()!),
+            sunrise: Array.from(dailyWeather.variables(3)!.valuesArray()!).map((timestamp: number) => new Date(timestamp)),
+            sunset: Array.from(dailyWeather.variables(4)!.valuesArray()!).map((timestamp: number) => new Date(timestamp)),
+            windSpeed10mMax: Array.from(dailyWeather.variables(6)!.valuesArray()!),
+            windDirection10mDominant: Array.from(dailyWeather.variables(7)!.valuesArray()!),
+          }
+        });
         setError(null);
       } catch (error) {
         setError(error instanceof Error ? error.message : 'Unknown error');
