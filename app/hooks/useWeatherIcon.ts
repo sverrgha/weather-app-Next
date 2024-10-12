@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 
 const getWeatherIcon = (weatherCode: number, isDay: number) => {
-  console.log(weatherCode, isDay);
   if (weatherCode >= 0 && weatherCode <= 1) return isDay ? 'images/icons/clearDay.svg' : 'images/icons/clearNight.svg';
   if (weatherCode == 2) return isDay ? 'images/icons/partlyOvercastDay.svg' : 'images/icons/partlyOvercastNight.svg';
   if (weatherCode == 3) return 'images/icons/overcast.svg';
