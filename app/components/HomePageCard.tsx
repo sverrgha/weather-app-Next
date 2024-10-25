@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import HomePageCardWeatherData from './HomePageCardWeatherData';
 
 interface HomePageCardProps {
