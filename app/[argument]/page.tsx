@@ -5,8 +5,9 @@ type Props = {
   params: { argument: string }
 }
 
-export default function CityPage({ params }: Props) {
-  const decodedCity = decodeURIComponent(params.argument);
+export default async function CityPage({ params }: Props) {
+  const { argument } = await params;
+  const decodedCity = decodeURIComponent(argument);
 
   return (
     <div className='flex w-screen items-center justify-center padd'>
